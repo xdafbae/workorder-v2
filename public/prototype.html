@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prototype UI - WO Infusion Pump</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hospital: {
+                            50: '#ecfeff',
+                            600: '#0e7490',
+                            700: '#155e75'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .scan-frame {
+            background:
+                linear-gradient(90deg, rgba(8,145,178,.38) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(8,145,178,.38) 1px, transparent 1px),
+                #0f172a;
+            background-size: 28px 28px;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div class="min-h-screen lg:flex">
+        <aside class="border-b border-slate-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r">
+            <div class="flex items-center gap-3 px-5 py-5">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-hospital-600 text-white">
+                    <i data-lucide="activity" class="h-5 w-5"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wide text-hospital-700">WO Medika</p>
+                    <h1 class="text-base font-bold text-slate-950">Infusion Pump</h1>
+                </div>
+            </div>
+
+            <nav class="flex gap-2 overflow-x-auto px-4 pb-4 lg:block lg:space-y-1 lg:overflow-visible">
+                <button data-target="perawat" class="nav-btn flex min-w-max items-center gap-3 rounded-md bg-hospital-50 px-3 py-2.5 text-sm font-medium text-hospital-700 ring-1 ring-hospital-50">
+                    <i data-lucide="layout-dashboard" class="h-4 w-4"></i> Perawat
+                </button>
+                <button data-target="lapor" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="scan-line" class="h-4 w-4"></i> Lapor WO
+                </button>
+                <button data-target="teknisi" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="wrench" class="h-4 w-4"></i> Teknisi
+                </button>
+                <button data-target="admin" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="bar-chart-3" class="h-4 w-4"></i> Admin
+                </button>
+                <button data-target="alat" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="hard-drive" class="h-4 w-4"></i> Alat
+                </button>
+                <button data-target="rules" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="git-branch" class="h-4 w-4"></i> Rules
+                </button>
+                <button data-target="laporan" class="nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="file-text" class="h-4 w-4"></i> Laporan
+                </button>
+            </nav>
+        </aside>
+
+        <div class="min-w-0 flex-1">
+            <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p id="screenRole" class="text-sm font-medium text-slate-500">Perawat</p>
+                        <h2 id="screenTitle" class="text-xl font-bold text-slate-950 sm:text-2xl">Dashboard Perawat</h2>
+                    </div>
+                    <button data-target="lapor" class="nav-shortcut inline-flex w-fit items-center gap-2 rounded-md bg-hospital-600 px-3 py-2 text-sm font-semibold text-white hover:bg-hospital-700">
+                        <i data-lucide="scan-line" class="h-4 w-4"></i> WO Baru
+                    </button>
+                </div>
+            </header>
+
+            <main class="px-4 py-6 sm:px-6 lg:px-8">
+                <section id="perawat" class="screen active">
+                    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">WO hari ini</p>
+                            <p class="mt-2 text-3xl font-bold text-slate-950">12</p>
+                            <p class="mt-3 text-sm font-medium text-emerald-700">+3 dari kemarin</p>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Menunggu</p>
+                            <p class="mt-2 text-3xl font-bold text-amber-700">5</p>
+                            <p class="mt-3 text-sm font-medium text-slate-500">SLA 2 jam</p>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Diproses</p>
+                            <p class="mt-2 text-3xl font-bold text-cyan-700">7</p>
+                            <p class="mt-3 text-sm font-medium text-slate-500">4 teknisi aktif</p>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <p class="text-sm font-medium text-slate-500">Selesai</p>
+                            <p class="mt-2 text-3xl font-bold text-slate-950">28</p>
+                            <p class="mt-3 text-sm font-medium text-slate-500">minggu ini</p>
+                        </article>
+                    </div>
+
+                    <div class="mt-6 grid gap-6 xl:grid-cols-[.9fr_1.1fr]">
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Pelaporan cepat</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Scan QR alat dan pilih gejala</h3>
+                            <div class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="font-semibold text-slate-950">Syringe Pump Terumo TE-331</p>
+                                        <p class="mt-1 text-sm text-slate-500">INV-IP-ICU-024 - ICU Lantai 2</p>
+                                    </div>
+                                    <span class="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">Aktif</span>
+                                </div>
+                            </div>
+                            <button data-target="lapor" class="nav-shortcut mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-hospital-600 px-4 py-3 text-sm font-semibold text-white hover:bg-hospital-700">
+                                <i data-lucide="plus-circle" class="h-4 w-4"></i> Laporkan Kerusakan Baru
+                            </button>
+                        </article>
+
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Work Order saya</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Riwayat laporan terbaru</h3>
+                            <div class="mt-5 space-y-3" id="woList"></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="lapor" class="screen">
+                    <div class="grid gap-6 xl:grid-cols-[.95fr_1.05fr]">
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Scan barcode</p>
+                                    <h3 class="mt-1 text-xl font-bold text-slate-950">Identifikasi alat</h3>
+                                </div>
+                                <button id="scanButton" class="inline-flex items-center gap-2 rounded-md bg-hospital-600 px-3 py-2 text-sm font-semibold text-white hover:bg-hospital-700">
+                                    <i data-lucide="camera" class="h-4 w-4"></i> Simulasi Scan
+                                </button>
+                            </div>
+                            <div class="scan-frame mt-5 flex aspect-[4/3] items-center justify-center rounded-lg p-5 text-white">
+                                <div class="rounded-lg border border-cyan-300 bg-slate-950/70 p-5 text-center">
+                                    <div class="mx-auto grid h-32 w-32 grid-cols-5 gap-1 rounded-md bg-white p-2" id="qrMock"></div>
+                                    <p class="mt-4 text-sm font-semibold">QR: IP-ICU-024</p>
+                                </div>
+                            </div>
+                            <div class="mt-5 grid grid-cols-2 gap-3 text-sm">
+                                <div class="rounded-md bg-slate-50 p-3">
+                                    <p class="text-slate-500">Serial</p>
+                                    <p class="mt-1 font-semibold text-slate-950">SN-TE331-24019</p>
+                                </div>
+                                <div class="rounded-md bg-slate-50 p-3">
+                                    <p class="text-slate-500">Lokasi</p>
+                                    <p class="mt-1 font-semibold text-slate-950">ICU Lantai 2</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Gejala</p>
+                                    <h3 class="mt-1 text-xl font-bold text-slate-950">Checklist pemeriksaan awal</h3>
+                                </div>
+                                <span id="selectedCounter" class="rounded-md bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">0 dipilih</span>
+                            </div>
+                            <div class="mt-5 grid gap-3 sm:grid-cols-2" id="symptomList"></div>
+                            <textarea rows="4" class="mt-5 w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" placeholder="Keterangan tambahan"></textarea>
+                            <div class="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
+                                <p class="text-sm font-bold text-cyan-800">Preview rule engine</p>
+                                <div id="previewContent" class="mt-3 text-sm leading-6 text-cyan-900">Pilih gejala untuk melihat indikasi awal.</div>
+                            </div>
+                            <button data-target="teknisi" class="nav-shortcut mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-hospital-600 px-4 py-3 text-sm font-semibold text-white hover:bg-hospital-700">
+                                <i data-lucide="send" class="h-4 w-4"></i> Kirim Laporan
+                            </button>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="teknisi" class="screen">
+                    <div class="grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Antrian teknisi</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">WO perlu ditangani</h3>
+                            <div class="mt-5 space-y-3" id="techQueue"></div>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Prioritas awal</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Indikasi dan saran</h3>
+                            <div class="mt-5 space-y-3">
+                                <div class="rounded-lg border border-slate-200 p-4">
+                                    <p class="font-bold text-slate-950">Sistem Power</p>
+                                    <p class="mt-2 text-sm text-slate-500">Cek kabel, adaptor, baterai, sekering, power board, tombol, dan konektor internal.</p>
+                                </div>
+                                <div class="rounded-lg border border-slate-200 p-4">
+                                    <p class="font-bold text-slate-950">Sensor Occlusion</p>
+                                    <p class="mt-2 text-sm text-slate-500">Bersihkan area sensor dan pastikan selang tidak tertekuk.</p>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="admin" class="screen">
+                    <div class="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Analitik WO</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Kerusakan berdasarkan kategori</h3>
+                            <div class="mt-6 space-y-4" id="bars"></div>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">SLA teknisi</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Kinerja minggu ini</h3>
+                            <div class="mt-5 grid grid-cols-2 gap-3">
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Respon</p><p class="mt-2 text-2xl font-bold">38m</p></div>
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Selesai</p><p class="mt-2 text-2xl font-bold">4.2j</p></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="alat" class="screen">
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Master alat</p>
+                                <h3 class="mt-1 text-xl font-bold text-slate-950">Infusion Pump dan Syringe Pump</h3>
+                            </div>
+                            <button class="inline-flex items-center gap-2 rounded-md bg-hospital-600 px-3 py-2 text-sm font-semibold text-white hover:bg-hospital-700">
+                                <i data-lucide="plus" class="h-4 w-4"></i> Tambah Alat
+                            </button>
+                        </div>
+                        <div class="mt-5 overflow-hidden rounded-lg border border-slate-200">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        <tr><th class="px-4 py-3">Alat</th><th class="px-4 py-3">Inventaris</th><th class="px-4 py-3">Ruangan</th><th class="px-4 py-3">Status</th></tr>
+                                    </thead>
+                                    <tbody id="deviceRows" class="divide-y divide-slate-200 bg-white"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section id="rules" class="screen">
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Rule-based engine</p>
+                        <h3 class="mt-1 text-xl font-bold text-slate-950">Pemetaan gejala ke indikasi</h3>
+                        <div class="mt-5 overflow-hidden rounded-lg border border-slate-200">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        <tr><th class="px-4 py-3">Rule</th><th class="px-4 py-3">Gejala</th><th class="px-4 py-3">Indikasi</th><th class="px-4 py-3">Bobot</th></tr>
+                                    </thead>
+                                    <tbody id="ruleRows" class="divide-y divide-slate-200 bg-white"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section id="laporan" class="screen">
+                    <div class="grid gap-6 xl:grid-cols-[.9fr_1.1fr]">
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <p class="text-sm font-semibold uppercase tracking-wide text-cyan-700">Laporan</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-950">Rekap Work Order</h3>
+                            <div class="mt-5 grid grid-cols-2 gap-3">
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Total WO</p><p class="mt-2 text-3xl font-bold">52</p></div>
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Selesai</p><p class="mt-2 text-3xl font-bold text-emerald-700">41</p></div>
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Pending</p><p class="mt-2 text-3xl font-bold text-amber-700">8</p></div>
+                                <div class="rounded-lg border border-slate-200 p-4"><p class="text-sm text-slate-500">Over SLA</p><p class="mt-2 text-3xl font-bold text-red-700">3</p></div>
+                            </div>
+                        </article>
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <h3 class="text-xl font-bold text-slate-950">Tabel laporan</h3>
+                                <button class="inline-flex items-center gap-2 rounded-md bg-hospital-600 px-3 py-2 text-sm font-semibold text-white hover:bg-hospital-700">
+                                    <i data-lucide="download" class="h-4 w-4"></i> Export PDF
+                                </button>
+                            </div>
+                            <div class="mt-5 space-y-3" id="reportRows"></div>
+                        </article>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const workOrders = [
+            { number: 'WO-2026-0008', device: 'Syringe Pump Terumo TE-331', unit: 'ICU Lantai 2', status: 'Menunggu', severity: 'High', reporter: 'Ns. Rina Marlina', technician: 'Belum ditugaskan', symptoms: ['Alat tidak menyala', 'Indikator baterai tidak muncul'] },
+            { number: 'WO-2026-0007', device: 'Syringe Pump B. Braun Perfusor', unit: 'NICU', status: 'Diproses', severity: 'Medium', reporter: 'Ns. Ahmad Fauzi', technician: 'Teguh Prasetyo', symptoms: ['Alarm occlusion aktif', 'Flow rate tidak stabil'] },
+            { number: 'WO-2026-0006', device: 'Infusion Pump Mindray BeneFusion', unit: 'IGD', status: 'Selesai', severity: 'Low', reporter: 'Ns. Dwi Lestari', technician: 'Dimas Saputra', symptoms: ['Alarm door open aktif'] }
+        ];
+        const symptoms = [
+            ['PWR-01', 'Alat tidak menyala'], ['PWR-02', 'Indikator baterai tidak muncul'], ['ALM-01', 'Alarm occlusion aktif'],
+            ['ALM-02', 'Alarm air bubble aktif'], ['PRF-01', 'Cairan tidak keluar'], ['PRF-02', 'Flow rate tidak stabil'],
+            ['SNS-01', 'Sensor tidak merespons'], ['MTR-01', 'Suara motor tidak normal'], ['SFW-01', 'Tampilan hang']
+        ];
+        const devices = [
+            ['Syringe Pump Terumo TE-331', 'INV-IP-ICU-024', 'ICU Lantai 2', 'Dalam Perbaikan'],
+            ['Syringe Pump B. Braun Perfusor', 'INV-IP-NICU-011', 'NICU', 'Dalam Perbaikan'],
+            ['Infusion Pump Mindray BeneFusion', 'INV-IP-IGD-006', 'IGD', 'Aktif'],
+            ['Syringe Pump Fresenius Injectomat', 'INV-IP-HCU-019', 'HCU', 'Aktif']
+        ];
+        const rules = [
+            ['Power failure basic', 'PWR-01, PWR-02', 'Sistem Power', 95],
+            ['Occlusion path', 'ALM-01, PRF-02', 'Sensor Occlusion', 82],
+            ['Motor drive suspect', 'MTR-01, MTR-02', 'Motor / Driver', 88],
+            ['Firmware error', 'SFW-01, SFW-02', 'Software / System', 78]
+        ];
+        const titles = {
+            perawat: ['Perawat', 'Dashboard Perawat'],
+            lapor: ['Perawat', 'Laporkan Kerusakan'],
+            teknisi: ['Teknisi Elektromedis', 'Dashboard Teknisi'],
+            admin: ['Supervisor / Admin', 'Dashboard Admin'],
+            alat: ['Admin', 'Manajemen Alat'],
+            rules: ['Super Admin', 'Konfigurasi Rule Engine'],
+            laporan: ['Supervisor / Admin', 'Laporan Work Order']
+        };
+        const screenRoleEl = document.getElementById('screenRole');
+        const screenTitleEl = document.getElementById('screenTitle');
+        const woListEl = document.getElementById('woList');
+        const techQueueEl = document.getElementById('techQueue');
+        const symptomListEl = document.getElementById('symptomList');
+        const selectedCounterEl = document.getElementById('selectedCounter');
+        const previewContentEl = document.getElementById('previewContent');
+        const deviceRowsEl = document.getElementById('deviceRows');
+        const ruleRowsEl = document.getElementById('ruleRows');
+        const reportRowsEl = document.getElementById('reportRows');
+        const barsEl = document.getElementById('bars');
+        const qrMockEl = document.getElementById('qrMock');
+        const scanButtonEl = document.getElementById('scanButton');
+
+        function statusBadge(status) {
+            const cls = status === 'Menunggu' ? 'bg-amber-50 text-amber-700' : status === 'Diproses' ? 'bg-cyan-50 text-cyan-700' : 'bg-emerald-50 text-emerald-700';
+            return `<span class="rounded-md px-2 py-1 text-xs font-semibold ${cls}">${status}</span>`;
+        }
+
+        function renderData() {
+            woListEl.innerHTML = workOrders.map((wo) => `
+                <article class="rounded-lg border border-slate-200 p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="font-bold text-slate-950">${wo.number}</p>
+                            <p class="mt-1 text-sm text-slate-500">${wo.device} - ${wo.unit}</p>
+                        </div>
+                        ${statusBadge(wo.status)}
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">${wo.symptoms.map((s) => `<span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">${s}</span>`).join('')}</div>
+                </article>
+            `).join('');
+            techQueueEl.innerHTML = workOrders.filter((wo) => wo.status !== 'Selesai').map((wo) => `
+                <article class="rounded-lg border border-slate-200 p-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2"><p class="font-bold">${wo.number}</p>${statusBadge(wo.status)}<span class="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-700">${wo.severity}</span></div>
+                            <p class="mt-2 text-sm text-slate-500">${wo.device} - ${wo.unit}</p>
+                            <p class="mt-1 text-xs text-slate-500">Pelapor: ${wo.reporter}</p>
+                        </div>
+                        <button class="inline-flex items-center justify-center gap-2 rounded-md bg-hospital-600 px-3 py-2 text-sm font-semibold text-white hover:bg-hospital-700"><i data-lucide="eye" class="h-4 w-4"></i> Detail</button>
+                    </div>
+                </article>
+            `).join('');
+            symptomListEl.innerHTML = symptoms.map(([code, name]) => `
+                <label class="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 p-3 hover:border-cyan-300 hover:bg-cyan-50/40">
+                    <input type="checkbox" value="${code}" class="symptom mt-1 h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-600">
+                    <span><span class="block text-sm font-semibold text-slate-950">${name}</span><span class="block text-xs text-slate-500">${code}</span></span>
+                </label>
+            `).join('');
+            deviceRowsEl.innerHTML = devices.map((row) => `<tr>${row.map((cell, i) => `<td class="px-4 py-4 ${i === 0 ? 'font-semibold text-slate-950' : 'text-slate-600'}">${cell}</td>`).join('')}</tr>`).join('');
+            ruleRowsEl.innerHTML = rules.map((row) => `<tr>${row.map((cell, i) => `<td class="px-4 py-4 ${i === 0 ? 'font-semibold text-slate-950' : 'text-slate-600'}">${cell}</td>`).join('')}</tr>`).join('');
+            reportRowsEl.innerHTML = workOrders.map((wo) => `<div class="rounded-lg border border-slate-200 p-4"><div class="flex items-center justify-between gap-3"><p class="font-bold">${wo.number}</p>${statusBadge(wo.status)}</div><p class="mt-2 text-sm text-slate-500">${wo.device} - ${wo.technician}</p></div>`).join('');
+            barsEl.innerHTML = [['Power Check', 88, 'bg-red-500'], ['Alarm Check', 64, 'bg-amber-500'], ['Performa Check', 52, 'bg-cyan-600'], ['Sensor Check', 41, 'bg-emerald-500'], ['Mekanik dan Motor', 35, 'bg-slate-500'], ['Software Check', 24, 'bg-indigo-500']].map(([label, value, color]) => `
+                <div><div class="mb-2 flex justify-between text-sm"><span class="font-medium">${label}</span><span class="font-semibold">${value}%</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full ${color}" style="width:${value}%"></div></div></div>
+            `).join('');
+            qrMockEl.innerHTML = Array.from({ length: 25 }, (_, i) => `<span class="${[0,1,2,5,7,10,11,12,17,20,21,22,4,9,14,19,24,18,6].includes(i) ? 'bg-slate-950' : 'bg-white'}"></span>`).join('');
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach((screen) => screen.classList.toggle('active', screen.id === id));
+            document.querySelectorAll('.nav-btn').forEach((btn) => {
+                const active = btn.dataset.target === id;
+                btn.className = active
+                    ? 'nav-btn flex min-w-max items-center gap-3 rounded-md bg-hospital-50 px-3 py-2.5 text-sm font-medium text-hospital-700 ring-1 ring-hospital-50'
+                    : 'nav-btn flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100';
+            });
+            screenRoleEl.textContent = titles[id][0];
+            screenTitleEl.textContent = titles[id][1];
+            lucide.createIcons();
+        }
+
+        function renderPreview() {
+            const selected = [...document.querySelectorAll('.symptom:checked')];
+            selectedCounterEl.textContent = `${selected.length} dipilih`;
+            if (!selected.length) {
+                previewContentEl.textContent = 'Pilih gejala untuk melihat indikasi awal.';
+                return;
+            }
+            const map = {
+                PWR: ['Sistem Power', 'Cek kabel, adaptor, baterai, sekering, power board, tombol, dan konektor internal.'],
+                ALM: ['Alarm Aktif', 'Cocokkan jenis alarm dengan panduan user manual.'],
+                PRF: ['Performa Flow', 'Periksa gelembung udara, sumbatan selang, ukuran syringe, dan konektor.'],
+                SNS: ['Kerusakan Sensor', 'Bersihkan sensor dan cek kabel konektor sensor.'],
+                MTR: ['Motor / Driver / Mekanik', 'Periksa motor, lead screw, mekanisme penggerak, dan driver motor.'],
+                SFW: ['Software / System', 'Restart alat dan siapkan update firmware bila kode error berulang.']
+            };
+            const groups = [...new Set(selected.map((item) => item.value.split('-')[0]))];
+            previewContentEl.innerHTML = groups.map((key) => `<div class="mb-3 rounded-md bg-white p-3 ring-1 ring-cyan-100"><strong>${map[key][0]}</strong><p class="mt-1">${map[key][1]}</p></div>`).join('');
+        }
+
+        renderData();
+        document.querySelectorAll('[data-target]').forEach((btn) => btn.addEventListener('click', () => showScreen(btn.dataset.target)));
+        document.addEventListener('change', (event) => {
+            if (event.target.classList.contains('symptom')) renderPreview();
+        });
+        scanButtonEl.addEventListener('click', () => {
+            scanButtonEl.innerHTML = '<i data-lucide="check-circle" class="h-4 w-4"></i> Alat Terbaca';
+            lucide.createIcons();
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>
