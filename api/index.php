@@ -2,6 +2,13 @@
 
 use Illuminate\Http\Request;
 
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
+if ((getenv('APP_ENV') ?: 'production') === 'production') {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+}
+
 define('LARAVEL_START', microtime(true));
 
 $tmpRoot = '/tmp/laravel';
