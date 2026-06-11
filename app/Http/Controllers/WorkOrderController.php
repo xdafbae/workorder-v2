@@ -126,6 +126,7 @@ class WorkOrderController extends Controller
                 'actor' => $update->user?->name ?? 'Sistem',
                 'status' => WorkOrderViewData::statusLabel($update->status),
                 'notes' => $update->notes ?? $update->final_diagnosis ?? '-',
+                'photo_url' => $update->photo_path ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($update->photo_path) : null,
             ])->values()->all(),
         ]);
     }
@@ -139,7 +140,18 @@ class WorkOrderController extends Controller
             'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $photoPath = $request->file('photo')?->store('wo-updates', 'public');
+        $photoPath = null;
+        $uploadWarning = null;
+
+        if ($request->hasFile('photo')) {
+            try {
+                $disk = env('FILESYSTEM_DISK', 'public');
+                $photoPath = $request->file('photo')->store('wo-updates', $disk);
+            } catch (\Exception $e) {
+                logger()->error('File upload failed: ' . $e->getMessage());
+                $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan di Vercel (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3) di Vercel.';
+            }
+        }
 
         DB::transaction(function () use ($request, $workOrder, $data, $photoPath) {
             $workOrder->update([
@@ -166,6 +178,10 @@ class WorkOrderController extends Controller
                 ],
             ]);
         });
+
+        if ($uploadWarning) {
+            return back()->with('status', 'Update Work Order tersimpan tanpa foto.')->with('warning', $uploadWarning);
+        }
 
         return back()->with('status', 'Update Work Order tersimpan.');
     }

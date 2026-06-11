@@ -132,6 +132,14 @@
                         <div>
                             <p class="text-sm font-bold text-slate-950">{{ $event['status'] }} - {{ $event['time'] }}</p>
                             <p class="mt-1 text-sm text-slate-500">{{ $event['actor'] }}: {{ $event['notes'] }}</p>
+                            @if (!empty($event['photo_url']))
+                                <div class="mt-2">
+                                    <a href="{{ $event['photo_url'] }}" target="_blank" class="inline-flex items-center gap-1.5 rounded bg-slate-50 px-2 py-1 text-xs font-semibold text-cyan-700 border border-cyan-100 hover:bg-cyan-50 transition">
+                                        <i data-lucide="image" class="h-3 w-3"></i>
+                                        Lihat Foto Perbaikan
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

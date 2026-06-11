@@ -111,6 +111,11 @@
                         {{ session('status') }}
                     </div>
                 @endif
+                @if (session('warning'))
+                    <div class="mb-5 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-700">
+                        {{ session('warning') }}
+                    </div>
+                @endif
                 @if ($errors->any())
                     <div class="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
                         {{ $errors->first() }}
