@@ -57,6 +57,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('devices', DeviceController::class)->only(['index', 'store', 'update', 'destroy'])
         ->middleware('role:admin,super_admin');
 
+    Route::post('/units', [\App\Http\Controllers\UnitController::class, 'store'])
+        ->middleware('role:admin,super_admin')
+        ->name('units.store');
+
     Route::get('/admin/rules', [RuleController::class, 'index'])
         ->middleware('role:admin,super_admin')
         ->name('rules.index');

@@ -1,0 +1,154 @@
+# Panduan Alur Kerja & Rekomendasi Tangkapan Layar (Screenshot)
+## Sistem Digital Work Order Berbasis Barcode (Infusion Pump)
+
+Dokumen ini disusun untuk memudahkan pembuatan proposal atau manual panduan PDF bagi klien. Sistem ini dirancang untuk mempercepat pelaporan kerusakan alat kesehatan (khususnya *Infusion Pump*) menggunakan pemindaian QR Code, mendeteksi indikasi awal menggunakan *Rule-Based Engine*, serta melacak proses perbaikan oleh teknisi secara transparan.
+
+---
+
+## Ringkasan Peran Pengguna (User Roles)
+
+Sistem ini melibatkan 3 peran utama dalam alurnya:
+1. **Perawat / Staf Medis (Nurse)**: Orang yang berada di dekat alat kesehatan sehari-hari. Berperan memindai QR code alat, memilih gejala kerusakan yang kasat mata, dan mengirim laporan.
+2. **Teknisi Elektromedis (Technician)**: Pihak IPSRS (Instalasi Pemeliharaan Sarana Rumah Sakit) yang merespon laporan, melakukan perbaikan di lapangan, dan mencatat histori perbaikan.
+3. **Supervisor / Admin**: Mengelola data alat, konfigurasi aturan pemecahan masalah (*Rule-Based Engine*), serta memantau kinerja teknisi (SLA) dan statistik kerusakan.
+
+---
+
+## Alur Sistem dari Awal sampai Akhir
+
+```mermaid
+flowchart TD
+    subgraph Tahap 1: Setup Admin
+        A[Input Data Master Ruangan & Alat] --> B[Generate QR Code Label Alat]
+        B --> C[Konfigurasi Rules Hubungan Gejala & Indikasi]
+    end
+
+    subgraph Tahap 2: Pelaporan Perawat
+        D[Perawat Scan QR Code Alat Medis] --> E[Verifikasi Data Alat Terbaca]
+        E --> F[Pilih Checklist Gejala Kerusakan]
+        F --> G[Sistem Preview Indikasi & Saran via Rule Engine]
+        G --> H[Submit Laporan & Work Order Dibuat]
+    end
+
+    subgraph Tahap 3 & 4: Tindakan & Verifikasi
+        H --> I[Notifikasi Masuk ke Teknisi]
+        I --> J[Teknisi Ubah Status ke 'Diproses']
+        J --> K[Teknisi Selesai Perbaiki & Input Catatan + Foto]
+        K --> L[Supervisor/Admin Verifikasi & Ubah Status ke 'Ditutup']
+    end
+
+    subgraph Tahap 5: Analitik & Laporan
+        L --> M[Monitoring Dashboard & Export Laporan ke PDF/CSV]
+    end
+```
+
+---
+
+## Detail Alur & Rekomendasi Screenshot untuk Dokumen Klien
+
+Berikut adalah rincian penjelasan alur langkah-demi-langkah disertai rekomendasi halaman/fitur apa yang harus Anda screenshot (tangkap layar) untuk dimasukkan ke dokumen PDF klien.
+
+---
+
+### TAHAP 1: Setup & Cetak QR Code (Persiapan Awal)
+
+Sebelum sistem bisa dipakai di lapangan, Admin harus menginput data alat kesehatan dan menempelkan QR Code fisik pada unit alat kesehatan.
+
+#### Langkah 1: Input Data Ruangan & Alat Kesehatan
+* **Penjelasan**: Admin menginput ruangan (Unit) dan daftar alat kesehatan *Infusion Pump* ke dalam sistem lengkap dengan Serial Number (SN), Nomor Inventaris, dan modelnya.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Daftar Alat Kesehatan (Devices Index)**.
+  2. *Highlight*: Kolom daftar alat beserta tombol "Tambah Alat Baru" atau edit detail alat untuk menunjukkan kemudahan manajemen data inventaris.
+
+#### Langkah 2: Generate & Cetak QR Code
+* **Penjelasan**: Sistem secara otomatis membuat kode QR unik berdasarkan barcode alat. Admin mencetak lembaran label QR Code ini (dalam format cetak A4 atau PDF) untuk digunting dan ditempel secara fisik pada body alat *Infusion Pump*.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Cetak Label QR (Print QR Layout)**.
+  2. *Highlight*: Lembaran preview label QR Code yang rapi, berisi Logo Brand, Nama Alat, Nomor Inventaris, Lokasi, dan Nomor Seri.
+
+#### Langkah 3: Konfigurasi Aturan Klasifikasi (Rule-Based Engine)
+* **Penjelasan**: Admin mengatur aturan (*rules*) yang menentukan jika perawat mencentang Gejala A, B, dan C, maka sistem otomatis mendeteksi Indikasi Kerusakan X (misal: Masalah Sistem Daya/Adaptor) beserta rekomendasi perbaikan awal.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Aturan Rule Engine (Rules Configuration)**.
+  2. *Highlight*: Tampilan daftar aturan, bobot prioritas (*weight*), dan gejala-gejala yang terasosiasi dengannya.
+
+---
+
+### TAHAP 2: Pelaporan Kerusakan oleh Perawat (User Flow)
+
+Proses ini terjadi saat alat kesehatan mengalami kendala di ruang perawatan rumah sakit.
+
+#### Langkah 4: Scan QR Code Alat Medis
+* **Penjelasan**: Perawat membuka aplikasi di browser HP/Tablet, menekan tombol **"Laporkan Kerusakan Baru"**, dan mengarahkan kamera ke label QR Code yang tertempel di alat. Sistem juga menyediakan alternatif input manual kode jika kamera HP bermasalah.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Scan Barcode (Active Camera View)**.
+  2. *Highlight*: Tampilan frame kamera scanner (menggunakan `Html5-Qrcode`) yang aktif di layar handphone perawat.
+
+#### Langkah 5: Konfirmasi Alat yang Dipindai
+* **Penjelasan**: Begitu QR Code terbaca (kurang dari 3 detik), sistem menampilkan pop-up modal berisi data lengkap alat untuk meminimalkan salah lapor alat. Perawat melakukan konfirmasi bahwa alat tersebut benar.
+* **Rekomendasi Screenshot**:
+  1. Pop-up **Scan Berhasil (Scan Success Modal)**.
+  2. *Highlight*: Nama alat yang terdeteksi, nomor inventaris, ruangan asal, dan tombol "Pilih Gejala".
+
+#### Langkah 6: Mengisi Checklist Gejala & Preview Indikasi Real-Time
+* **Penjelasan**: Perawat mencentang gejala yang terjadi. Gejala dikelompokkan secara rapi (Power, Alarm, Performa Flow, Sensor, Mekanik & Motor, Software). Menariknya, sistem memiliki panel **"Preview Rule Engine"** di bagian bawah yang langsung memperlihatkan hasil indikasi kerusakan sementara dan saran penanganan awal secara real-time saat perawat mencentang gejala (bahkan sebelum laporan dikirim).
+* **Rekomendasi Screenshot**:
+  1. Form **Checklist Gejala (Symptoms Form)**.
+  2. Panel **Preview Rule Engine**.
+  3. *Highlight*: Tampilan checklist gejala yang terpilih, kolom input "Keterangan Tambahan", serta kotak Preview berwarna toska/cyan yang menampilkan Indikasi Kerusakan dan Saran Perbaikan Awal.
+
+#### Langkah 7: Laporan Terkirim & Terbit Work Order
+* **Penjelasan**: Perawat mengklik tombol **"Kirim Laporan"**. Sistem langsung memproses rule engine, menyimpan data, menerbitkan Work Order dengan nomor unik (misal: `WO-20260611-0001`), dan mengirimkan notifikasi instan ke teknisi.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Detail Work Order (Status Menunggu)**.
+  2. *Highlight*: Nomor Work Order yang baru dibuat, status berwarna kuning/amber ("Menunggu"), ringkasan gejala terpilih, serta hasil analisis kerusakan final dari sistem.
+
+---
+
+### TAHAP 3: Penanganan Kerusakan oleh Teknisi
+
+Teknisi elektromedis menerima tugas dan melakukan eksekusi perbaikan di lapangan.
+
+#### Langkah 8: Penerimaan Tugas oleh Teknisi
+* **Penjelasan**: Teknisi login ke dashboard miliknya. Terlihat badge notifikasi dan daftar antrian WO yang memerlukan penanganan mendesak.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Dashboard Teknisi (Technician Dashboard)**.
+  2. *Highlight*: Kartu statistik antrian WO, label prioritas tingkat bahaya (*High*, *Medium*, *Low*), dan daftar pekerjaan yang siap diambil.
+
+#### Langkah 9: Pemrosesan Work Order (In Progress)
+* **Penjelasan**: Teknisi mengklik tombol **"Ambil WO"**. Status laporan otomatis berubah menjadi **"Diproses"** agar perawat mengetahui bahwa teknisi sedang menangani masalah tersebut.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Detail Work Order milik Teknisi**.
+  2. *Highlight*: Status yang berubah menjadi biru ("Diproses"), nama teknisi yang ditugaskan, dan tombol responsif.
+
+#### Langkah 10: Input Hasil Perbaikan & Unggah Bukti
+* **Penjelasan**: Setelah memperbaiki alat secara fisik di ruangan, teknisi kembali ke sistem untuk menginput diagnosis akhir, catatan perbaikan teknis, mengunggah foto hasil perbaikan (sebagai bukti), dan mengubah status menjadi **"Selesai"**.
+* **Rekomendasi Screenshot**:
+  1. Form **Update Teknisi (Technician Update Form)**.
+  2. *Highlight*: Input select pilihan status "Selesai", kolom input "Diagnosis Akhir", kolom input "Catatan Teknis", dan input file "Foto hasil perbaikan".
+
+---
+
+### TAHAP 4 & 5: Verifikasi Akhir & Laporan Manajemen
+
+Tahap terakhir untuk penutupan kasus dan pelaporan pihak manajemen rumah sakit.
+
+#### Langkah 11: Penutupan Work Order (Closed)
+* **Penjelasan**: Supervisor atau Admin meninjau perbaikan teknisi. Jika sudah sesuai, status diubah menjadi **"Ditutup"**. Seluruh riwayat/log perbaikan terekam rapi di timeline WO.
+* **Rekomendasi Screenshot**:
+  1. Panel **Timeline Work Order**.
+  2. *Highlight*: Catatan log berurut (contoh: WO dilaporkan oleh Perawat -> Diambil oleh Teknisi -> Diselesaikan -> Ditutup oleh Admin) beserta keterangan waktunya secara transparan.
+
+#### Langkah 12: Monitoring Dashboard & Export Laporan Analitik
+* **Penjelasan**: Pimpinan IPSRS atau Admin memantau efektivitas kinerja teknisi (SLA respon dan perbaikan) serta sebaran kerusakan alat medis lewat grafik visual di dashboard admin. Data ini juga bisa diekspor ke PDF/CSV kapan saja.
+* **Rekomendasi Screenshot**:
+  1. Halaman **Dashboard Admin (Analitik)**.
+  2. Halaman **Export Laporan (Report Export)**.
+  3. *Highlight*: Grafik visual persentase jenis kerusakan (Power, Alarm, Sensor, dll), kartu rata-rata waktu respon (SLA), dan tombol unduh laporan PDF/CSV.
+
+---
+
+## Tips Tambahan untuk Dokumen PDF Klien Anda
+* **Gunakan Mockup Device**: Untuk screenshot bagian pelaporan perawat (Langkah 4, 5, dan 6), pasang screenshot tersebut di dalam frame/mockup smartphone karena fitur pemindaian QR Code dan checklist dirancang khusus responsif untuk mobile-first.
+* **Beri Keterangan Angka**: Pada setiap screenshot di PDF, berikan lingkaran angka (1, 2, 3) yang merujuk pada teks penjelasan di bawahnya untuk memperjelas antarmuka pengguna (misal: mana tombol scan, mana tabel data, mana status).
+* **Tekankan Keunggulan Sistem**: Dalam penjelasan PDF Anda, tekankan bahwa sistem ini memotong birokrasi kertas, mengidentifikasi alat 100% akurat lewat barcode (tidak salah jenis/ruangan), serta mempercepat diagnosa teknisi lewat saran perbaikan awal otomatis dari sistem sebelum mereka berangkat ke lapangan.
