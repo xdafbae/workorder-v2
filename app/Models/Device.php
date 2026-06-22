@@ -20,11 +20,18 @@ class Device extends Model
         'barcode_code',
         'status',
         'purchased_at',
+        'last_maintenance_at',
+        'last_calibration_at',
+        'photo_path',
     ];
 
     protected function casts(): array
     {
-        return ['purchased_at' => 'date'];
+        return [
+            'purchased_at' => 'date',
+            'last_maintenance_at' => 'date',
+            'last_calibration_at' => 'date',
+        ];
     }
 
     protected static function booted(): void

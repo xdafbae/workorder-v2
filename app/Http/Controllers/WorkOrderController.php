@@ -43,6 +43,13 @@ class WorkOrderController extends Controller
                     str($item->inventory_number)->after('INV-')->toString(),
                 ])->filter()->unique()->values(),
                 'model' => $item->model,
+                'purchased_at' => $item->purchased_at?->format('Y-m-d') ?? '-',
+                'purchased_formatted' => $item->purchased_at ? $item->purchased_at->translatedFormat('d M Y') : '-',
+                'last_maintenance_at' => $item->last_maintenance_at?->format('Y-m-d') ?? '-',
+                'last_maintenance_formatted' => $item->last_maintenance_at ? $item->last_maintenance_at->translatedFormat('d M Y') : '-',
+                'last_calibration_at' => $item->last_calibration_at?->format('Y-m-d') ?? '-',
+                'last_calibration_formatted' => $item->last_calibration_at ? $item->last_calibration_at->translatedFormat('d M Y') : '-',
+                'photo_url' => $item->photo_path ? \Illuminate\Support\Facades\Storage::disk(WorkOrderViewData::disk())->url($item->photo_path) : null,
             ])->values(),
             'symptomGroups' => Symptom::query()
                 ->orderBy('category')
@@ -126,7 +133,7 @@ class WorkOrderController extends Controller
                 'actor' => $update->user?->name ?? 'Sistem',
                 'status' => WorkOrderViewData::statusLabel($update->status),
                 'notes' => $update->notes ?? $update->final_diagnosis ?? '-',
-                'photo_url' => $update->photo_path ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($update->photo_path) : null,
+                'photo_url' => $update->photo_path ? \Illuminate\Support\Facades\Storage::disk(WorkOrderViewData::disk())->url($update->photo_path) : null,
             ])->values()->all(),
         ]);
     }
@@ -145,7 +152,7 @@ class WorkOrderController extends Controller
 
         if ($request->hasFile('photo')) {
             try {
-                $disk = env('FILESYSTEM_DISK', 'public');
+                $disk = WorkOrderViewData::disk();
                 $photoPath = $request->file('photo')->store('wo-updates', $disk);
             } catch (\Exception $e) {
                 logger()->error('File upload failed: ' . $e->getMessage());

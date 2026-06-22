@@ -36,10 +36,10 @@ class DatabaseSeeder extends Seeder
         )]);
 
         $devices = collect([
-            ['name' => 'Syringe Pump Terumo TE-331', 'type' => 'Syringe Pump', 'model' => 'TE-331', 'serial_number' => 'SN-TE331-24019', 'inventory_number' => 'INV-IP-ICU-024', 'status' => 'repair', 'purchased_at' => '2023-01-10', 'unit_id' => $units['ICU Lantai 2']->id],
-            ['name' => 'Syringe Pump B. Braun Perfusor', 'type' => 'Syringe Pump', 'model' => 'Perfusor Space', 'serial_number' => 'SN-BB-11029', 'inventory_number' => 'INV-IP-NICU-011', 'status' => 'repair', 'purchased_at' => '2022-07-15', 'unit_id' => $units['NICU']->id],
-            ['name' => 'Infusion Pump Mindray BeneFusion', 'type' => 'Infusion Pump', 'model' => 'BeneFusion VP5', 'serial_number' => 'SN-MR-88006', 'inventory_number' => 'INV-IP-IGD-006', 'status' => 'active', 'purchased_at' => '2024-03-18', 'unit_id' => $units['IGD']->id],
-            ['name' => 'Syringe Pump Fresenius Injectomat', 'type' => 'Syringe Pump', 'model' => 'Injectomat Agilia', 'serial_number' => 'SN-FR-72019', 'inventory_number' => 'INV-IP-HCU-019', 'status' => 'active', 'purchased_at' => '2021-11-04', 'unit_id' => $units['HCU']->id],
+            ['name' => 'Syringe Pump Terumo TE-331', 'type' => 'Syringe Pump', 'model' => 'TE-331', 'serial_number' => 'SN-TE331-24019', 'inventory_number' => 'INV-IP-ICU-024', 'status' => 'repair', 'purchased_at' => '2023-01-10', 'last_maintenance_at' => '2026-05-15', 'last_calibration_at' => '2026-04-10', 'unit_id' => $units['ICU Lantai 2']->id],
+            ['name' => 'Syringe Pump B. Braun Perfusor', 'type' => 'Syringe Pump', 'model' => 'Perfusor Space', 'serial_number' => 'SN-BB-11029', 'inventory_number' => 'INV-IP-NICU-011', 'status' => 'repair', 'purchased_at' => '2022-07-15', 'last_maintenance_at' => '2026-04-20', 'last_calibration_at' => '2026-03-05', 'unit_id' => $units['NICU']->id],
+            ['name' => 'Infusion Pump Mindray BeneFusion', 'type' => 'Infusion Pump', 'model' => 'BeneFusion VP5', 'serial_number' => 'SN-MR-88006', 'inventory_number' => 'INV-IP-IGD-006', 'status' => 'active', 'purchased_at' => '2024-03-18', 'last_maintenance_at' => '2026-05-20', 'last_calibration_at' => '2026-04-18', 'unit_id' => $units['IGD']->id],
+            ['name' => 'Syringe Pump Fresenius Injectomat', 'type' => 'Syringe Pump', 'model' => 'Injectomat Agilia', 'serial_number' => 'SN-FR-72019', 'inventory_number' => 'INV-IP-HCU-019', 'status' => 'active', 'purchased_at' => '2021-11-04', 'last_maintenance_at' => '2026-06-01', 'last_calibration_at' => '2026-05-12', 'unit_id' => $units['HCU']->id],
         ])->mapWithKeys(function ($device) {
             $savedDevice = Device::query()->firstOrNew(['inventory_number' => $device['inventory_number']]);
             $savedDevice->fill($device);

@@ -181,4 +181,35 @@ class WorkOrderFlowTest extends TestCase
 
         $this->assertSame('active', $device->fresh()->status);
     }
+
+    public function test_admin_can_create_device_with_maintenance_calibration_and_photo(): void
+    {
+        $disk = env('FILESYSTEM_DISK', 'public');
+        \Illuminate\Support\Facades\Storage::fake($disk);
+
+        $admin = User::query()->where('role', 'admin')->firstOrFail();
+        $unitId = Unit::query()->value('id');
+        $photo = \Illuminate\Http\UploadedFile::fake()->image('device.jpg');
+
+        $this->actingAs($admin)->post('/devices', [
+            'unit_id' => $unitId,
+            'name' => 'Infusion Pump Tested',
+            'type' => 'Infusion Pump',
+            'model' => 'IP-Test',
+            'serial_number' => 'SN-TESTED-001',
+            'inventory_number' => 'INV-TESTED-001',
+            'status' => 'active',
+            'purchased_at' => '2026-05-23',
+            'last_maintenance_at' => '2026-06-10',
+            'last_calibration_at' => '2026-06-15',
+            'photo' => $photo,
+        ])->assertRedirect();
+
+        $device = Device::query()->where('inventory_number', 'INV-TESTED-001')->firstOrFail();
+
+        $this->assertEquals('2026-06-10', $device->last_maintenance_at->format('Y-m-d'));
+        $this->assertEquals('2026-06-15', $device->last_calibration_at->format('Y-m-d'));
+        $this->assertNotNull($device->photo_path);
+        \Illuminate\Support\Facades\Storage::disk($disk)->assertExists($device->photo_path);
+    }
 }

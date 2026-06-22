@@ -49,6 +49,9 @@
                             Masuk
                         </button>
                     </form>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-slate-500 font-medium">Belum memiliki akun? <a href="{{ route('register') }}" class="font-semibold text-cyan-700 hover:text-cyan-800">Daftar di sini</a></p>
+                    </div>
                 </div>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-3">

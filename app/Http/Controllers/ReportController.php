@@ -21,7 +21,7 @@ class ReportController extends Controller
 
         return view('reports.index', [
             'title' => 'Laporan Work Order',
-            'role' => 'Supervisor / Admin',
+            'role' => auth()->user()->role === 'technician' ? 'Teknisi Elektromedis' : 'Supervisor / Admin',
             'active' => 'reports',
             'workOrders' => WorkOrderViewData::workOrders($workOrders),
             'units' => Unit::query()->orderBy('name')->get(),

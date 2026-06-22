@@ -56,7 +56,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 bg-white">
                         @forelse ($devices as $item)
-                            <tr>
+                            <tr class="@if(($device['id'] ?? null) == $item['id']) bg-slate-50/80 ring-1 ring-inset ring-cyan-100 @endif">
                                 <td class="px-4 py-4">
                                     <p class="font-semibold text-slate-950">{{ $item['name'] }}</p>
                                     <p class="mt-1 text-xs text-slate-500">{{ $item['type'] }}{{ $item['model'] ? ' - '.$item['model'] : '' }}</p>
@@ -69,6 +69,10 @@
                                 <td class="px-4 py-4 text-slate-600">{{ $item['wo'] }}</td>
                                 <td class="px-4 py-4">
                                     <div class="flex justify-end gap-2">
+                                    <a href="{{ route('devices.index', ['selected' => $item['id']] + request()->query()) }}"
+                                       class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 @if(($device['id'] ?? null) == $item['id']) border-cyan-300 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 @endif" title="Lihat detail">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </a>
                                     <button type="button"
                                         data-edit-device
                                         data-id="{{ $item['id'] }}"
@@ -81,6 +85,9 @@
                                         data-unit-id="{{ $item['unit_id'] }}"
                                         data-status="{{ $item['raw_status'] }}"
                                         data-purchased-at="{{ $item['purchased_at'] }}"
+                                        data-last-maintenance-at="{{ $item['last_maintenance_at'] }}"
+                                        data-last-calibration-at="{{ $item['last_calibration_at'] }}"
+                                        data-photo-url="{{ $item['photo_url'] }}"
                                         class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50" aria-label="Edit alat">
                                         <i data-lucide="pencil" class="h-4 w-4"></i>
                                     </button>
@@ -107,26 +114,59 @@
 
     <aside class="space-y-6">
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Label QR</p>
+            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Detail Alat</p>
             @if ($device)
                 <h3 class="mt-1 text-xl font-bold text-slate-950">{{ $device['barcode'] }}</h3>
+                
+                @if ($device['photo_url'])
+                    <div class="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                        <img src="{{ $device['photo_url'] }}" alt="{{ $device['name'] }}" class="h-40 w-full object-cover">
+                    </div>
+                @endif
+                
                 <div class="mt-5 mx-auto grid h-48 w-48 grid-cols-6 gap-1 rounded-lg border border-slate-200 bg-white p-3">
                     @for ($i = 0; $i < 36; $i++)
                         <span class="{{ in_array($i, [0,1,2,6,8,12,13,14,20,24,25,26,5,11,17,23,29,35,30,31,32,4,9,15,19,28,33]) ? 'bg-slate-950' : 'bg-white' }}"></span>
                     @endfor
                 </div>
                 <dl class="mt-5 space-y-3 text-sm">
-                    <div class="flex justify-between gap-3">
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
                         <dt class="text-slate-500">Nama</dt>
-                        <dd class="font-semibold text-slate-950">{{ $device['name'] }}</dd>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['name'] }}</dd>
                     </div>
-                    <div class="flex justify-between gap-3">
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Model</dt>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['model'] ?? '-' }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Serial Number</dt>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['serial_number'] }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
                         <dt class="text-slate-500">Inventaris</dt>
-                        <dd class="font-semibold text-slate-950">{{ $device['inventory_number'] }}</dd>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['inventory_number'] }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Lokasi</dt>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['unit'] }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Status</dt>
+                        <dd class="font-semibold text-slate-950 text-right">
+                            <span class="rounded px-2 py-0.5 text-xs font-semibold {{ $device['raw_status'] === 'active' ? 'bg-emerald-50 text-emerald-700' : ($device['raw_status'] === 'inactive' ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700') }}">{{ $device['status'] }}</span>
+                        </dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Tanggal Pembelian</dt>
+                        <dd class="font-semibold text-slate-950 text-right">{{ $device['purchased_formatted'] }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                        <dt class="text-slate-500">Terakhir Maintenance</dt>
+                        <dd class="font-semibold text-slate-950 text-right text-emerald-700">{{ $device['last_maintenance_formatted'] }}</dd>
                     </div>
                     <div class="flex justify-between gap-3">
-                        <dt class="text-slate-500">Lokasi</dt>
-                        <dd class="font-semibold text-slate-950">{{ $device['unit'] }}</dd>
+                        <dt class="text-slate-500">Terakhir Kalibrasi</dt>
+                        <dd class="font-semibold text-slate-950 text-right text-cyan-700">{{ $device['last_calibration_formatted'] }}</dd>
                     </div>
                 </dl>
             @else
@@ -167,7 +207,7 @@
             </button>
         </div>
 
-        <form id="deviceForm" method="POST" action="{{ route('devices.store') }}" class="space-y-4 px-5 py-5">
+        <form id="deviceForm" method="POST" action="{{ route('devices.store') }}" enctype="multipart/form-data" class="space-y-4 px-5 py-5">
             @csrf
             <input id="deviceFormMethod" type="hidden" name="_method" value="POST" disabled>
 
@@ -223,6 +263,25 @@
                 <label class="block md:col-span-2">
                     <span class="text-sm font-semibold text-slate-700">Tanggal pembelian</span>
                     <input id="devicePurchasedInput" name="purchased_at" type="date" value="{{ old('purchased_at') }}" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                </label>
+
+                <label class="block">
+                    <span class="text-sm font-semibold text-slate-700">Tanggal terakhir maintenance</span>
+                    <input id="deviceLastMaintenanceInput" name="last_maintenance_at" type="date" value="{{ old('last_maintenance_at') }}" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                </label>
+
+                <label class="block">
+                    <span class="text-sm font-semibold text-slate-700">Tanggal terakhir kalibrasi</span>
+                    <input id="deviceLastCalibrationInput" name="last_calibration_at" type="date" value="{{ old('last_calibration_at') }}" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                </label>
+
+                <label class="block md:col-span-2">
+                    <span class="text-sm font-semibold text-slate-700">Foto Alat</span>
+                    <input id="devicePhotoInput" name="photo" type="file" accept="image/*" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                    <div id="devicePhotoPreviewContainer" class="mt-2 hidden">
+                        <p class="text-xs font-semibold text-slate-500 mb-1">Preview Foto Saat Ini:</p>
+                        <img id="devicePhotoPreview" class="h-28 w-auto rounded-lg object-cover border border-slate-200" src="#">
+                    </div>
                 </label>
 
                 <label id="deviceBarcodeField" class="hidden md:col-span-2">
@@ -305,6 +364,11 @@
     const deviceUnitInput = document.getElementById('deviceUnitInput');
     const deviceStatusInput = document.getElementById('deviceStatusInput');
     const devicePurchasedInput = document.getElementById('devicePurchasedInput');
+    const deviceLastMaintenanceInput = document.getElementById('deviceLastMaintenanceInput');
+    const deviceLastCalibrationInput = document.getElementById('deviceLastCalibrationInput');
+    const devicePhotoInput = document.getElementById('devicePhotoInput');
+    const devicePhotoPreviewContainer = document.getElementById('devicePhotoPreviewContainer');
+    const devicePhotoPreview = document.getElementById('devicePhotoPreview');
     const deviceBarcodeField = document.getElementById('deviceBarcodeField');
     const deviceBarcodeInput = document.getElementById('deviceBarcodeInput');
     const barcodeHelp = document.getElementById('barcodeHelp');
@@ -348,6 +412,18 @@
         deviceUnitInput.value = device.unitId || deviceUnitInput.options[0]?.value || '';
         deviceStatusInput.value = device.status || 'active';
         devicePurchasedInput.value = device.purchasedAt || '';
+        deviceLastMaintenanceInput.value = device.lastMaintenanceAt || '';
+        deviceLastCalibrationInput.value = device.lastCalibrationAt || '';
+        devicePhotoInput.value = '';
+        
+        if (isEdit && device.photoUrl) {
+            devicePhotoPreview.src = device.photoUrl;
+            devicePhotoPreviewContainer.classList.remove('hidden');
+        } else {
+            devicePhotoPreview.src = '#';
+            devicePhotoPreviewContainer.classList.add('hidden');
+        }
+
         deviceBarcodeInput.value = device.barcode || '';
         deviceBarcodeField.classList.toggle('hidden', !isEdit);
         barcodeHelp.textContent = isEdit

@@ -10,6 +10,13 @@ use Illuminate\Support\Collection;
 
 class WorkOrderViewData
 {
+    public static function disk(): string
+    {
+        $disk = env('FILESYSTEM_DISK', 'public');
+
+        return $disk === 'local' ? 'public' : $disk;
+    }
+
     public static function statusLabel(?string $status): string
     {
         return [
@@ -57,6 +64,13 @@ class WorkOrderViewData
             'barcode' => $device->barcode_code,
             'model' => $device->model,
             'purchased_at' => $device->purchased_at?->format('Y') ?? '-',
+            'purchased_date' => $device->purchased_at?->format('Y-m-d'),
+            'purchased_formatted' => $device->purchased_at ? $device->purchased_at->translatedFormat('d M Y') : '-',
+            'last_maintenance_at' => $device->last_maintenance_at?->format('Y-m-d'),
+            'last_maintenance_formatted' => $device->last_maintenance_at ? $device->last_maintenance_at->translatedFormat('d M Y') : '-',
+            'last_calibration_at' => $device->last_calibration_at?->format('Y-m-d'),
+            'last_calibration_formatted' => $device->last_calibration_at ? $device->last_calibration_at->translatedFormat('d M Y') : '-',
+            'photo_url' => $device->photo_path ? \Illuminate\Support\Facades\Storage::disk(self::disk())->url($device->photo_path) : null,
         ];
     }
 
@@ -76,6 +90,12 @@ class WorkOrderViewData
             'status' => self::deviceStatusLabel($device->status),
             'raw_status' => $device->status,
             'purchased_at' => $device->purchased_at?->format('Y-m-d'),
+            'purchased_formatted' => $device->purchased_at ? $device->purchased_at->translatedFormat('d M Y') : '-',
+            'last_maintenance_at' => $device->last_maintenance_at?->format('Y-m-d'),
+            'last_maintenance_formatted' => $device->last_maintenance_at ? $device->last_maintenance_at->translatedFormat('d M Y') : '-',
+            'last_calibration_at' => $device->last_calibration_at?->format('Y-m-d'),
+            'last_calibration_formatted' => $device->last_calibration_at ? $device->last_calibration_at->translatedFormat('d M Y') : '-',
+            'photo_url' => $device->photo_path ? \Illuminate\Support\Facades\Storage::disk(self::disk())->url($device->photo_path) : null,
             'wo' => $device->workOrders->first()?->wo_number ?? '-',
         ])->values()->all();
     }

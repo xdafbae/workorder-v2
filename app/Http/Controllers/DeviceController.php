@@ -38,7 +38,11 @@ class DeviceController extends Controller
             ->orderBy('name')
             ->get();
 
-        $device = $devices->first();
+        $selectedId = request('selected');
+        $device = $selectedId ? $devices->firstWhere('id', $selectedId) : null;
+        if (!$device) {
+            $device = $devices->first();
+        }
 
         $deviceHistory = $device
             ? WorkOrderViewData::workOrders(WorkOrder::query()
@@ -51,7 +55,7 @@ class DeviceController extends Controller
 
         return view('devices.index', [
             'title' => 'Manajemen Alat',
-            'role' => 'Admin',
+            'role' => auth()->user()->role === 'technician' ? 'Teknisi Elektromedis' : 'Admin',
             'active' => 'devices',
             'devices' => WorkOrderViewData::deviceRows($devices),
             'device' => $device ? WorkOrderViewData::device($device) : [],
@@ -121,7 +125,16 @@ class DeviceController extends Controller
             'inventory_number' => ['required', 'string', 'max:255', 'unique:devices,inventory_number'],
             'status' => ['required', 'in:active,repair,inactive'],
             'purchased_at' => ['nullable', 'date'],
+            'last_maintenance_at' => ['nullable', 'date'],
+            'last_calibration_at' => ['nullable', 'date'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ]);
+
+        if ($request->hasFile('photo')) {
+            $disk = WorkOrderViewData::disk();
+            $data['photo_path'] = $request->file('photo')->store('devices', $disk);
+        }
+        unset($data['photo']);
 
         Device::query()->create($data);
 
@@ -140,11 +153,23 @@ class DeviceController extends Controller
             'barcode_code' => ['nullable', 'string', 'max:255', 'unique:devices,barcode_code,'.$device->id],
             'status' => ['required', 'in:active,repair,inactive'],
             'purchased_at' => ['nullable', 'date'],
+            'last_maintenance_at' => ['nullable', 'date'],
+            'last_calibration_at' => ['nullable', 'date'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         if (blank($data['barcode_code'] ?? null)) {
             unset($data['barcode_code']);
         }
+
+        if ($request->hasFile('photo')) {
+            $disk = WorkOrderViewData::disk();
+            if ($device->photo_path) {
+                \Illuminate\Support\Facades\Storage::disk($disk)->delete($device->photo_path);
+            }
+            $data['photo_path'] = $request->file('photo')->store('devices', $disk);
+        }
+        unset($data['photo']);
 
         $device->update($data);
 

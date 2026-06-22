@@ -3,13 +3,14 @@
     $role = $role ?? 'Prototype';
     $active = $active ?? 'dashboard';
     $navItems = [
-        ['key' => 'dashboard', 'label' => 'Perawat', 'href' => '/dashboard/perawat', 'icon' => 'layout-dashboard'],
-        ['key' => 'report', 'label' => 'Lapor WO', 'href' => '/work-orders/create', 'icon' => 'scan-line'],
-        ['key' => 'technician', 'label' => 'Teknisi', 'href' => '/dashboard/teknisi', 'icon' => 'wrench'],
-        ['key' => 'admin', 'label' => 'Admin', 'href' => '/dashboard/admin', 'icon' => 'bar-chart-3'],
-        ['key' => 'devices', 'label' => 'Alat', 'href' => '/devices', 'icon' => 'hard-drive'],
-        ['key' => 'rules', 'label' => 'Rules', 'href' => '/admin/rules', 'icon' => 'git-branch'],
-        ['key' => 'reports', 'label' => 'Laporan', 'href' => '/reports', 'icon' => 'file-text'],
+        ['key' => 'dashboard', 'label' => 'Perawat', 'href' => '/dashboard/perawat', 'icon' => 'layout-dashboard', 'roles' => ['nurse', 'admin', 'super_admin']],
+        ['key' => 'report', 'label' => 'Lapor WO', 'href' => '/work-orders/create', 'icon' => 'scan-line', 'roles' => ['nurse', 'admin', 'super_admin']],
+        ['key' => 'technician', 'label' => 'Teknisi', 'href' => '/dashboard/teknisi', 'icon' => 'wrench', 'roles' => ['technician', 'admin', 'super_admin']],
+        ['key' => 'admin', 'label' => 'Admin', 'href' => '/dashboard/admin', 'icon' => 'bar-chart-3', 'roles' => ['admin', 'super_admin']],
+        ['key' => 'devices', 'label' => 'Alat', 'href' => '/devices', 'icon' => 'hard-drive', 'roles' => ['technician', 'admin', 'super_admin']],
+        ['key' => 'users', 'label' => 'Pengguna', 'href' => '/users', 'icon' => 'users', 'roles' => ['admin', 'super_admin']],
+        ['key' => 'rules', 'label' => 'Rules', 'href' => '/admin/rules', 'icon' => 'git-branch', 'roles' => ['admin', 'super_admin']],
+        ['key' => 'reports', 'label' => 'Laporan', 'href' => '/reports', 'icon' => 'file-text', 'roles' => ['technician', 'admin', 'super_admin']],
     ];
 @endphp
 <!doctype html>
@@ -66,11 +67,13 @@
 
             <nav class="flex gap-2 overflow-x-auto px-4 pb-4 lg:block lg:space-y-1 lg:overflow-visible">
                 @foreach ($navItems as $item)
-                    <a href="{{ $item['href'] }}"
-                        class="flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition {{ $active === $item['key'] ? 'bg-hospital-50 text-hospital-700 ring-1 ring-hospital-100' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
-                        <i data-lucide="{{ $item['icon'] }}" class="h-4 w-4"></i>
-                        <span>{{ $item['label'] }}</span>
-                    </a>
+                    @if (auth()->user()->isRole(...$item['roles']))
+                        <a href="{{ $item['href'] }}"
+                            class="flex min-w-max items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition {{ $active === $item['key'] ? 'bg-hospital-50 text-hospital-700 ring-1 ring-hospital-100' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
+                            <i data-lucide="{{ $item['icon'] }}" class="h-4 w-4"></i>
+                            <span>{{ $item['label'] }}</span>
+                        </a>
+                    @endif
                 @endforeach
             </nav>
 

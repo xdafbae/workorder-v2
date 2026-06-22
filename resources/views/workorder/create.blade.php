@@ -51,12 +51,16 @@
 
         <div id="deviceCard" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex items-start justify-between gap-4">
-                <div>
+                <div class="flex-1">
                     <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Data alat</p>
                     <h3 id="deviceName" class="mt-1 text-xl font-bold text-slate-950">{{ $device['name'] }}</h3>
                     <p id="deviceMeta" class="mt-2 text-sm text-slate-500">{{ $device['inventory_number'] }} - {{ $device['unit'] }}</p>
                 </div>
                 <span id="deviceStatus" class="rounded-md bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{{ $device['status'] }}</span>
+            </div>
+
+            <div id="devicePhotoWrapper" class="mt-4 {{ $device['photo_url'] ? '' : 'hidden' }}">
+                <img id="devicePhoto" src="{{ $device['photo_url'] ?? '#' }}" alt="Foto Alat" class="h-48 w-full object-cover rounded-lg border border-slate-200">
             </div>
 
             <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
@@ -75,6 +79,18 @@
                 <div class="rounded-md bg-slate-50 p-3">
                     <dt class="text-slate-500">Barcode</dt>
                     <dd id="deviceBarcode" class="mt-1 font-semibold text-slate-950">{{ $device['barcode'] }}</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3">
+                    <dt class="text-slate-500">Tanggal Pembelian</dt>
+                    <dd id="devicePurchased" class="mt-1 font-semibold text-slate-950">{{ $device['purchased_formatted'] }}</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3">
+                    <dt class="text-slate-500">Terakhir Maintenance</dt>
+                    <dd id="deviceLastMaintenance" class="mt-1 font-semibold text-emerald-700">{{ $device['last_maintenance_formatted'] }}</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3 sm:col-span-2">
+                    <dt class="text-slate-500">Terakhir Kalibrasi</dt>
+                    <dd id="deviceLastCalibration" class="mt-1 font-semibold text-cyan-700">{{ $device['last_calibration_formatted'] }}</dd>
                 </div>
             </dl>
         </div>
@@ -161,6 +177,10 @@
                 <p id="scanModalDeviceMeta" class="mt-1 text-sm font-semibold text-slate-600">-</p>
             </div>
 
+            <div id="scanModalDevicePhotoWrapper" class="mt-4 hidden">
+                <img id="scanModalDevicePhoto" src="#" alt="Foto Alat" class="h-40 w-full object-cover rounded-lg border border-slate-200">
+            </div>
+
             <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div class="rounded-md bg-slate-50 p-3">
                     <dt class="text-slate-500">Serial Number</dt>
@@ -177,6 +197,18 @@
                 <div class="rounded-md bg-slate-50 p-3">
                     <dt class="text-slate-500">Barcode</dt>
                     <dd id="scanModalDeviceBarcode" class="mt-1 font-semibold text-slate-950">-</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3">
+                    <dt class="text-slate-500">Tanggal Pembelian</dt>
+                    <dd id="scanModalDevicePurchased" class="mt-1 font-semibold text-slate-950">-</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3">
+                    <dt class="text-slate-500">Terakhir Maintenance</dt>
+                    <dd id="scanModalDeviceLastMaintenance" class="mt-1 font-semibold text-emerald-700">-</dd>
+                </div>
+                <div class="rounded-md bg-slate-50 p-3 sm:col-span-2">
+                    <dt class="text-slate-500">Terakhir Kalibrasi</dt>
+                    <dd id="scanModalDeviceLastCalibration" class="mt-1 font-semibold text-cyan-700">-</dd>
                 </div>
             </dl>
         </div>
@@ -352,6 +384,21 @@
         deviceModel.textContent = device.model || '-';
         deviceUnit.textContent = device.unit;
         deviceBarcode.textContent = device.barcode;
+
+        // new fields
+        document.getElementById('devicePurchased').textContent = device.purchased_formatted || '-';
+        document.getElementById('deviceLastMaintenance').textContent = device.last_maintenance_formatted || '-';
+        document.getElementById('deviceLastCalibration').textContent = device.last_calibration_formatted || '-';
+
+        const photoWrapper = document.getElementById('devicePhotoWrapper');
+        const photoImg = document.getElementById('devicePhoto');
+        if (device.photo_url) {
+            photoImg.src = device.photo_url;
+            photoWrapper.classList.remove('hidden');
+        } else {
+            photoImg.src = '#';
+            photoWrapper.classList.add('hidden');
+        }
     }
 
     function openScanSuccessModal(device) {
@@ -361,6 +408,22 @@
         scanModalDeviceModel.textContent = device.model || '-';
         scanModalDeviceUnit.textContent = device.unit || '-';
         scanModalDeviceBarcode.textContent = device.barcode || '-';
+
+        // new fields
+        document.getElementById('scanModalDevicePurchased').textContent = device.purchased_formatted || '-';
+        document.getElementById('scanModalDeviceLastMaintenance').textContent = device.last_maintenance_formatted || '-';
+        document.getElementById('scanModalDeviceLastCalibration').textContent = device.last_calibration_formatted || '-';
+
+        const modalPhotoWrapper = document.getElementById('scanModalDevicePhotoWrapper');
+        const modalPhotoImg = document.getElementById('scanModalDevicePhoto');
+        if (device.photo_url) {
+            modalPhotoImg.src = device.photo_url;
+            modalPhotoWrapper.classList.remove('hidden');
+        } else {
+            modalPhotoImg.src = '#';
+            modalPhotoWrapper.classList.add('hidden');
+        }
+
         scanSuccessModal.classList.remove('hidden');
         scanSuccessModal.classList.add('flex');
         document.body.classList.add('overflow-hidden');

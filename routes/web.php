@@ -5,12 +5,16 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RuleController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkOrderController;
 use Illuminate\Support\Facades\Route;
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 });
 
 Route::post('/demo-login/{role}', [AuthController::class, 'demo'])
@@ -52,13 +56,16 @@ Route::middleware('auth')->group(function () {
         ->name('work-orders.update');
 
     Route::get('/devices/print-qr', [DeviceController::class, 'printQr'])
-        ->middleware('role:admin,super_admin')
+        ->middleware('role:technician,admin,super_admin')
         ->name('devices.print-qr');
     Route::resource('devices', DeviceController::class)->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('role:technician,admin,super_admin');
+
+    Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])
         ->middleware('role:admin,super_admin');
 
     Route::post('/units', [\App\Http\Controllers\UnitController::class, 'store'])
-        ->middleware('role:admin,super_admin')
+        ->middleware('role:technician,admin,super_admin')
         ->name('units.store');
 
     Route::get('/admin/rules', [RuleController::class, 'index'])
@@ -75,9 +82,9 @@ Route::middleware('auth')->group(function () {
         ->name('rules.destroy');
 
     Route::get('/reports', [ReportController::class, 'index'])
-        ->middleware('role:admin,super_admin')
+        ->middleware('role:technician,admin,super_admin')
         ->name('reports.index');
     Route::get('/reports/export-csv', [ReportController::class, 'exportCsv'])
-        ->middleware('role:admin,super_admin')
+        ->middleware('role:technician,admin,super_admin')
         ->name('reports.export-csv');
 });
