@@ -12,7 +12,7 @@ class WorkOrderViewData
 {
     public static function disk(): string
     {
-        $disk = env('FILESYSTEM_DISK', 'public');
+        $disk = config('filesystems.default', 'public');
 
         return $disk === 'local' ? 'public' : $disk;
     }

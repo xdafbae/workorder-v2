@@ -137,6 +137,9 @@ class DeviceController extends Controller
             try {
                 $disk = WorkOrderViewData::disk();
                 $photoPath = $request->file('photo')->store('devices', $disk);
+                if ($photoPath === false) {
+                    throw new \Exception('Failed to write file to disk.');
+                }
             } catch (\Exception $e) {
                 logger()->error('Device photo upload failed: ' . $e->getMessage());
                 $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';
@@ -191,6 +194,9 @@ class DeviceController extends Controller
                     }
                 }
                 $photoPath = $request->file('photo')->store('devices', $disk);
+                if ($photoPath === false) {
+                    throw new \Exception('Failed to write file to disk.');
+                }
             } catch (\Exception $e) {
                 logger()->error('Device photo update failed: ' . $e->getMessage());
                 $uploadWarning = 'Foto gagal diperbarui karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';

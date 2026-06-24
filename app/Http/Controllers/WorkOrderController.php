@@ -154,6 +154,9 @@ class WorkOrderController extends Controller
             try {
                 $disk = WorkOrderViewData::disk();
                 $photoPath = $request->file('photo')->store('wo-updates', $disk);
+                if ($photoPath === false) {
+                    throw new \Exception('Failed to write file to disk.');
+                }
             } catch (\Exception $e) {
                 logger()->error('File upload failed: ' . $e->getMessage());
                 $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan di Vercel (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3) di Vercel.';
