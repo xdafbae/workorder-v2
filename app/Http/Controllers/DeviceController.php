@@ -130,13 +130,28 @@ class DeviceController extends Controller
             'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
+        $photoPath = null;
+        $uploadWarning = null;
+
         if ($request->hasFile('photo')) {
-            $disk = WorkOrderViewData::disk();
-            $data['photo_path'] = $request->file('photo')->store('devices', $disk);
+            try {
+                $disk = WorkOrderViewData::disk();
+                $photoPath = $request->file('photo')->store('devices', $disk);
+            } catch (\Exception $e) {
+                logger()->error('Device photo upload failed: ' . $e->getMessage());
+                $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';
+            }
         }
         unset($data['photo']);
+        if ($photoPath) {
+            $data['photo_path'] = $photoPath;
+        }
 
         Device::query()->create($data);
+
+        if ($uploadWarning) {
+            return back()->with('status', 'Data alat berhasil ditambahkan tanpa foto.')->with('warning', $uploadWarning);
+        }
 
         return back()->with('status', 'Data alat berhasil ditambahkan.');
     }
@@ -162,16 +177,35 @@ class DeviceController extends Controller
             unset($data['barcode_code']);
         }
 
+        $photoPath = null;
+        $uploadWarning = null;
+
         if ($request->hasFile('photo')) {
-            $disk = WorkOrderViewData::disk();
-            if ($device->photo_path) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($device->photo_path);
+            try {
+                $disk = WorkOrderViewData::disk();
+                if ($device->photo_path) {
+                    try {
+                        \Illuminate\Support\Facades\Storage::disk($disk)->delete($device->photo_path);
+                    } catch (\Exception $de) {
+                        logger()->warning('Failed to delete old device photo: ' . $de->getMessage());
+                    }
+                }
+                $photoPath = $request->file('photo')->store('devices', $disk);
+            } catch (\Exception $e) {
+                logger()->error('Device photo update failed: ' . $e->getMessage());
+                $uploadWarning = 'Foto gagal diperbarui karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';
             }
-            $data['photo_path'] = $request->file('photo')->store('devices', $disk);
         }
         unset($data['photo']);
+        if ($photoPath) {
+            $data['photo_path'] = $photoPath;
+        }
 
         $device->update($data);
+
+        if ($uploadWarning) {
+            return back()->with('status', 'Data alat berhasil diperbarui tanpa memperbarui foto.')->with('warning', $uploadWarning);
+        }
 
         return back()->with('status', 'Data alat berhasil diperbarui.');
     }
