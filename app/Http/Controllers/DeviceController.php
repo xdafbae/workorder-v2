@@ -141,7 +141,11 @@ class DeviceController extends Controller
                     throw new \Exception('Failed to write file to disk.');
                 }
             } catch (\Exception $e) {
-                logger()->error('Device photo upload failed: ' . $e->getMessage());
+                $actualError = $e->getMessage();
+                if ($e->getPrevious()) {
+                    $actualError .= ' | Detail: ' . $e->getPrevious()->getMessage();
+                }
+                logger()->error('Device photo upload failed: ' . $actualError);
                 $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';
             }
         }
@@ -198,7 +202,11 @@ class DeviceController extends Controller
                     throw new \Exception('Failed to write file to disk.');
                 }
             } catch (\Exception $e) {
-                logger()->error('Device photo update failed: ' . $e->getMessage());
+                $actualError = $e->getMessage();
+                if ($e->getPrevious()) {
+                    $actualError .= ' | Detail: ' . $e->getPrevious()->getMessage();
+                }
+                logger()->error('Device photo update failed: ' . $actualError);
                 $uploadWarning = 'Foto gagal diperbarui karena pembatasan penyimpanan (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3/R2).';
             }
         }

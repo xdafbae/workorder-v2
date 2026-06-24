@@ -158,7 +158,11 @@ class WorkOrderController extends Controller
                     throw new \Exception('Failed to write file to disk.');
                 }
             } catch (\Exception $e) {
-                logger()->error('File upload failed: ' . $e->getMessage());
+                $actualError = $e->getMessage();
+                if ($e->getPrevious()) {
+                    $actualError .= ' | Detail: ' . $e->getPrevious()->getMessage();
+                }
+                logger()->error('File upload failed: ' . $actualError);
                 $uploadWarning = 'Foto gagal diunggah karena pembatasan penyimpanan di Vercel (read-only filesystem). Silakan konfigurasikan Cloud Storage (S3) di Vercel.';
             }
         }
