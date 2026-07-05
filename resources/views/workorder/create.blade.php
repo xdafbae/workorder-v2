@@ -660,33 +660,6 @@
         return { width: size, height: size };
     }
 
-    async function cameraCandidates() {
-        const highResolution = {
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-        };
-        const candidates = [
-            { facingMode: { exact: 'environment' }, ...highResolution },
-            { facingMode: 'environment', ...highResolution },
-        ];
-
-        try {
-            const cameras = await Html5Qrcode.getCameras();
-            const preferred = cameras.find((camera) => /back|rear|environment|belakang/i.test(camera.label))
-                || cameras[cameras.length - 1];
-
-            if (preferred?.id) {
-                candidates.unshift({ deviceId: { exact: preferred.id }, ...highResolution });
-            }
-        } catch (error) {
-            console.warn('Camera list unavailable:', error);
-        }
-
-        candidates.push(highResolution);
-
-        return candidates;
-    }
-
     async function applyCameraEnhancements() {
         const video = scannerReader.querySelector('video');
         const track = video?.srcObject?.getVideoTracks?.()[0];
@@ -727,7 +700,6 @@
             return;
         }
 
-        ensureScanner();
         scanHandled = false;
         scannerPlaceholder.classList.add('hidden');
         scannerReader.classList.remove('hidden');
@@ -735,33 +707,110 @@
         setScanButton('x', 'Stop Scan');
 
         try {
-            const candidates = await cameraCandidates();
-            const scanConfig = {
+            let preferredId = null;
+            try {
+                const cameras = await Html5Qrcode.getCameras();
+                const preferred = cameras.find((camera) => /back|rear|environment|belakang/i.test(camera.label))
+                    || cameras[cameras.length - 1];
+                preferredId = preferred?.id || null;
+            } catch (error) {
+                console.warn('Camera list unavailable:', error);
+            }
+
+            const baseScanConfig = {
                 fps: 15,
                 qrbox,
-                aspectRatio: 1.333334,
                 disableFlip: false,
                 experimentalFeatures: {
                     useBarCodeDetectorIfSupported: true,
                 },
             };
+
+            const highResolution = {
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+            };
+
+            const trials = [];
+
+            // 1. Preferred camera ID + high resolution (1080p) + 4:3 aspect ratio
+            if (preferredId) {
+                trials.push({
+                    cameraConfig: { deviceId: { exact: preferredId }, ...highResolution },
+                    scanConfig: { ...baseScanConfig, aspectRatio: 1.333334 }
+                });
+                // 2. Preferred camera ID + high resolution (1080p) + no aspect ratio constraint
+                trials.push({
+                    cameraConfig: { deviceId: { exact: preferredId }, ...highResolution },
+                    scanConfig: baseScanConfig
+                });
+                // 3. Preferred camera ID string (default resolution & aspect ratio)
+                trials.push({
+                    cameraConfig: preferredId,
+                    scanConfig: baseScanConfig
+                });
+            }
+
+            // 4. facingMode environment + high resolution + 4:3 aspect ratio
+            trials.push({
+                cameraConfig: { facingMode: { exact: 'environment' }, ...highResolution },
+                scanConfig: { ...baseScanConfig, aspectRatio: 1.333334 }
+            });
+            trials.push({
+                cameraConfig: { facingMode: 'environment', ...highResolution },
+                scanConfig: { ...baseScanConfig, aspectRatio: 1.333334 }
+            });
+
+            // 5. facingMode environment + high resolution + no aspect ratio constraint
+            trials.push({
+                cameraConfig: { facingMode: { exact: 'environment' }, ...highResolution },
+                scanConfig: baseScanConfig
+            });
+            trials.push({
+                cameraConfig: { facingMode: 'environment', ...highResolution },
+                scanConfig: baseScanConfig
+            });
+
+            // 6. facingMode environment + default resolution (no aspect ratio constraint)
+            trials.push({
+                cameraConfig: { facingMode: 'environment' },
+                scanConfig: baseScanConfig
+            });
+
+            // 7. High resolution default camera (no aspect ratio constraint)
+            trials.push({
+                cameraConfig: highResolution,
+                scanConfig: baseScanConfig
+            });
+
+            // 8. Default camera (no constraints)
+            trials.push({
+                cameraConfig: {},
+                scanConfig: baseScanConfig
+            });
+
             let lastError = null;
 
-            for (const cameraConfig of candidates) {
+            for (const trial of trials) {
                 try {
+                    ensureScanner();
                     scanning = true;
-                    await scanner.start(cameraConfig, scanConfig, handleScanSuccess, () => {});
+                    await scanner.start(trial.cameraConfig, trial.scanConfig, handleScanSuccess, () => {});
                     lastError = null;
                     break;
                 } catch (error) {
+                    console.warn('Scanner start failed for trial config:', trial, error);
                     lastError = error;
                     scanning = false;
 
                     try {
-                        scanner.clear();
+                        if (scanner) {
+                            await scanner.clear();
+                        }
                     } catch (clearError) {
-                        console.warn('Scanner clear failed:', clearError);
+                        console.warn('Scanner clear failed during loop:', clearError);
                     }
+                    scanner = null; // force recreation of scanner on next iteration
                 }
             }
 
@@ -774,6 +823,7 @@
             startCanvasFallback();
             startNativeDetectorFallback();
         } catch (error) {
+            console.error('All scanner start attempts failed:', error);
             stopCanvasFallback();
             scanning = false;
             scannerReader.classList.add('hidden');
